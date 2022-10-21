@@ -53,3 +53,10 @@ export const SliderMovie = styled.FlatList`
 height: 250px;
 padding: 0 14px;
 `;
+
+export const LoadingArea = styled.View`
+flex: 1;
+align-items: center;
+justify-content: center;
+`;
+

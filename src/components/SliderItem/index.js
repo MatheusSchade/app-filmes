@@ -4,10 +4,9 @@ import { Container, Title, RateContainer, BannerItem, Rate } from './styles'
 import { Ionicons } from "@expo/vector-icons"
 import { IMAGE_BASE_URL } from '../../constants'
 
-export default function SliderItem({ data }) {
-  console.log('data', data)
+export default function SliderItem({ data, navigatePage }) {
   return (
-    <Container activeOpacity={0.7}>
+    <Container activeOpacity={0.7} onPress={() => navigatePage(data)}>
       <BannerItem source={{ uri: `${IMAGE_BASE_URL}${data?.poster_path}` }} />
       <Title numberOfLines={1}>{data?.title}</Title>
       <RateContainer>

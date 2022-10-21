@@ -8,23 +8,29 @@ import {
   Title,
   BannerButton,
   Banner,
-  SliderMovie
+  SliderMovie,
+  LoadingArea
 } from './styles';
 import { Feather } from '@expo/vector-icons'
 import { base3 } from '../../constants/colors';
-import { ScrollView, Text } from 'react-native';
+import { ScrollView, ActivityIndicator, View } from 'react-native';
 import SliderItem from '../../components/SliderItem';
 import api from '../../services/api';
-import { API_KEY } from '../../constants';
-import { getListMovies } from '../../utils/movie';
+import { API_KEY, IMAGE_BASE_URL } from '../../constants';
+import { getListMovies, generateRandomBanner } from '../../utils/movie';
+import { useNavigation } from '@react-navigation/native';
 
 export default function Home() {
   const [nowMovies, setNowMovies] = useState([])
   const [popularMovies, setPopularMovies] = useState([])
   const [topMovies, setTopMovies] = useState([])
+  const [bannerMovie, setBannerMovie] = useState({})
+  const [loading, setLoading] = useState(true)
+  const navigation = useNavigation()
 
   useEffect(() => {
     let isActive = true
+    const ac = new AbortController()
 
     const apiParams = {
       params: {
@@ -41,59 +47,89 @@ export default function Home() {
         api.get(`/movie/top_rated`, apiParams),
       ])
 
-      const nowList = getListMovies(10, nowData?.data?.results)
-      const popularList = getListMovies(5, popularData?.data?.results)
-      const topList = getListMovies(5, topData?.data?.results)
+      if (isActive) {
+        const nowList = getListMovies(10, nowData?.data?.results)
+        const popularList = getListMovies(5, popularData?.data?.results)
+        const topList = getListMovies(5, topData?.data?.results)
+        const indexBannerMovie = generateRandomBanner(nowList)
 
-      setNowMovies(nowList)
-      setPopularMovies(popularList)
-      setTopMovies(topList)
+        setBannerMovie(nowList[indexBannerMovie])
+
+        setNowMovies(nowList)
+        setPopularMovies(popularList)
+        setTopMovies(topList)
+
+        setLoading(false)
+      } else {
+        ac.abort()
+        // aborta todas as requisições em andamento quando isActive for false
+      }
+
+
     }
 
     getMovies()
+
+    return () => {
+      // quando desmonta o componente, seta isActive como false
+      // para poder usar o abortController
+      isActive = false
+    }
   }, [])
 
-  return (
-    <Container>
-      <Header title={`React Prime`} />
-      <SeachContainer>
-        <Input placeholder='Nome do filme' />
-        <SearchButton>
-          <Feather name='search' size={30} color={base3} />
-        </SearchButton>
-      </SeachContainer>
-      <ScrollView showsVerticalScrollIndicator={false}>
-        <Title>Em cartaz</Title>
-        <BannerButton
-          activeOpacity={0.7}
-          onPress={() => (
-            alert('clicou')
-          )}
-        >
-          <Banner resizeMethod='resize' source={{ uri: "https://images.unsplash.com/photo-1664575599618-8f6bd76fc670?ixlib=rb-1.2.1&ixid=MnwxMjA3fDF8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=870&q=80" }} />
-        </BannerButton>
-        <SliderMovie
-          showsHorizontalScrollIndicator={false}
-          horizontal
-          renderItem={({ item }) => <SliderItem data={item} keyExtractor={String(item?.id)} />}
-          data={nowMovies}
-        />
-        <Title>Populares</Title>
-        <SliderMovie
-          showsHorizontalScrollIndicator={false}
-          horizontal
-          renderItem={({ item }) => <SliderItem data={item} keyExtractor={String(item?.id)} />}
-          data={popularMovies}
-        />
-        <Title>Mais votados</Title>
-        <SliderMovie
-          showsHorizontalScrollIndicator={false}
-          horizontal
-          renderItem={({ item }) => <SliderItem data={item} keyExtractor={String(item?.id)} />}
-          data={topMovies}
-        />
+  function navigateDetailsPage(item) {
+    navigation.navigate("Detail", { id: item?.id })
+  }
 
-      </ScrollView>
-    </Container>
-  );
+  if (loading) {
+    return (
+      <Container>
+        <LoadingArea>
+          <ActivityIndicator size={75} color={`#FFF`} />
+        </LoadingArea>
+      </Container>
+    )
+  } else {
+    return (
+      <Container>
+        <Header title={`React Prime`} />
+        <SeachContainer>
+          <Input placeholder='Nome do filme' />
+          <SearchButton>
+            <Feather name='search' size={30} color={base3} />
+          </SearchButton>
+        </SeachContainer>
+        <ScrollView showsVerticalScrollIndicator={false}>
+          <Title>Em cartaz</Title>
+          <BannerButton
+            activeOpacity={0.7}
+            onPress={() => navigateDetailsPage(bannerMovie)}
+          >
+            <Banner resizeMethod='resize' source={{ uri: `${IMAGE_BASE_URL}${bannerMovie?.poster_path}` }} />
+          </BannerButton>
+          <SliderMovie
+            showsHorizontalScrollIndicator={false}
+            horizontal
+            renderItem={({ item }) => <SliderItem navigatePage={() => navigateDetailsPage(item)} data={item} keyExtractor={String(item?.id)} />}
+            data={nowMovies}
+          />
+          <Title>Populares</Title>
+          <SliderMovie
+            showsHorizontalScrollIndicator={false}
+            horizontal
+            renderItem={({ item }) => <SliderItem navigatePage={() => navigateDetailsPage(item)} data={item} keyExtractor={String(item?.id)} />}
+            data={popularMovies}
+          />
+          <Title>Mais votados</Title>
+          <SliderMovie
+            showsHorizontalScrollIndicator={false}
+            horizontal
+            renderItem={({ item }) => <SliderItem navigatePage={() => navigateDetailsPage(item)} data={item} keyExtractor={String(item?.id)} />}
+            data={topMovies}
+          />
+
+        </ScrollView>
+      </Container>
+    )
+  }
 }
