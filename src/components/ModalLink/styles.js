@@ -1,5 +1,5 @@
 import styled from 'styled-components/native';
-import { base5 } from '../../constants/colors';
+import { base5, base3 } from '../../constants/colors';
 
 export const BackButton = styled.TouchableOpacity`
 padding: 10px;
@@ -11,7 +11,7 @@ align-items: center;
 
 export const Name = styled.Text`
 margin-left: 8px;
-color: #FFF;
+color: ${base3};
 font-size: 18px;
 font-weight:bold;
 `;

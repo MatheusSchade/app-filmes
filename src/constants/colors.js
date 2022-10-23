@@ -1,7 +1,7 @@
 
 export const base1 = '#0F1016'
 export const base2 = '#E72F49'
-export const base3 = '#FFFFFF'
+export const base3 = '#FFF'
 export const base4 = '#EFEFEF'
 export const base5 = '#191A30'
 export const base6 = '#384058'

@@ -1,5 +1,5 @@
 import styled from 'styled-components/native';
-import { base2, base5 } from '../../constants/colors';
+import { base2, base3, base5 } from '../../constants/colors';
 
 export const Container = styled.View`
 flex: 1;
@@ -39,7 +39,7 @@ justify-content: center;
 `;
 
 export const Title = styled.Text`
-color: #FFF;
+color: ${base3};
 font-size: 24px;
 font-weight: bold;
 padding: 35px 14px 10px 14px;
@@ -68,7 +68,7 @@ justify-content: space-between;
 export const Rate = styled.Text`
 font-size: 18px;
 font-weight: bold;
-color: #FFF;
+color: ${base3};
 `;
 
 export const GenresList = styled.FlatList`
@@ -81,6 +81,6 @@ min-height: 35px;
 export const Description = styled.Text`
 font-size: 16px;
 padding: 0 14px 30px 14px;
-color: #FFF;
+color: ${base3};
 line-height: 20px;
 `;

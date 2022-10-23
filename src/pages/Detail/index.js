@@ -14,12 +14,15 @@ import React, { useState, useEffect } from 'react'
 import { Feather, Ionicons } from "@expo/vector-icons"
 import { useNavigation, useRoute } from '@react-navigation/native';
 import api from '../../services/api';
-import { API_KEY, IMAGE_BASE_URL } from '../../constants';
+import { API_KEY, ASYNC_STORAGE_KEY, IMAGE_BASE_URL } from '../../constants';
 import { ActivityIndicator, ScrollView, Modal } from 'react-native'
 import Start from "react-native-stars"
-import { base7 } from '../../constants/colors';
+import { base3, base7 } from '../../constants/colors';
 import Genres from '../../components/Genres';
 import ModalLink from "../../components/ModalLink"
+import {
+  saveMovie, hasMovie, deleteMovieFromFavorites
+} from '../../utils/storage';
 
 
 export default function Detail() {
@@ -30,6 +33,7 @@ export default function Detail() {
   const [loading, setLoading] = useState(true)
   const [movie, setMovie] = useState({})
   const [openLink, setOpenLink] = useState(false)
+  const [isFavoriteMovie, setIsFavoriteMovie] = useState(false)
 
   useEffect(() => {
     let isActive = true;
@@ -50,6 +54,9 @@ export default function Detail() {
       if (isActive) {
         setMovie(response?.data)
         setLoading(false)
+
+        const isFavorite = await hasMovie(response?.data)
+        setIsFavoriteMovie(isFavorite)
       } else {
         ac.abort()
         // aborta todas as requisições em andamento quando isActive for false
@@ -63,11 +70,21 @@ export default function Detail() {
     }
   }, [])
 
+  async function handleFavoriteMovie(movie) {
+    if (isFavoriteMovie) {
+      await deleteMovieFromFavorites(movie?.id)
+      setIsFavoriteMovie(false)
+    } else {
+      await saveMovie(ASYNC_STORAGE_KEY, movie)
+      setIsFavoriteMovie(true)
+    }
+  }
+
   if (loading) {
     return (
       <Container>
         <LoadingArea>
-          <ActivityIndicator size={75} color={`#FFF`} />
+          <ActivityIndicator size={75} color={base3} />
         </LoadingArea>
       </Container>
     )
@@ -79,14 +96,14 @@ export default function Detail() {
             <Feather
               name="arrow-left"
               size={28}
-              color="#FFF"
+              color={base3}
             />
           </HeaderButton>
-          <HeaderButton>
+          <HeaderButton onPress={() => handleFavoriteMovie(movie)}>
             <Ionicons
-              name="bookmark"
+              name={isFavoriteMovie ? `bookmark` : `bookmark-outline`}
               size={28}
-              color="#FFF"
+              color={base3}
             />
           </HeaderButton>
         </Header>
@@ -94,7 +111,7 @@ export default function Detail() {
         <Banner resizeMethod='resize' source={{ uri: `${IMAGE_BASE_URL}${movie?.poster_path}` }} />
 
         {movie?.homepage && <ButtonLink onPress={() => setOpenLink(true)}>
-          <Feather name="link" size={24} color="#FFF" />
+          <Feather name="link" size={24} color={base3} />
         </ButtonLink>}
 
 
@@ -120,11 +137,13 @@ export default function Detail() {
           renderItem={({ item }) => <Genres data={item} />}
         />
 
-        <Title numberOfLines={1}>Descrição</Title>
+        {movie?.overview && <>
+          <Title numberOfLines={1}>Descrição</Title>
 
-        <ScrollView showsHorizontalScrollIndicator={false}>
-          <Description>{movie?.overview}</Description>
-        </ScrollView>
+          <ScrollView showsHorizontalScrollIndicator={false}>
+            <Description>{movie?.overview}</Description>
+          </ScrollView>
+        </>}
 
         <Modal animationType='slide' transparent={true} visible={openLink}>
           <ModalLink

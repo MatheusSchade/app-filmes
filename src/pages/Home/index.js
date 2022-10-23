@@ -13,7 +13,7 @@ import {
 } from './styles';
 import { Feather } from '@expo/vector-icons'
 import { base3 } from '../../constants/colors';
-import { ScrollView, ActivityIndicator, View } from 'react-native';
+import { ScrollView, ActivityIndicator } from 'react-native';
 import SliderItem from '../../components/SliderItem';
 import api from '../../services/api';
 import { API_KEY, IMAGE_BASE_URL } from '../../constants';
@@ -26,6 +26,7 @@ export default function Home() {
   const [topMovies, setTopMovies] = useState([])
   const [bannerMovie, setBannerMovie] = useState({})
   const [loading, setLoading] = useState(true)
+  const [inputSearch, setInputSearch] = useState('')
   const navigation = useNavigation()
 
   useEffect(() => {
@@ -81,11 +82,18 @@ export default function Home() {
     navigation.navigate("Detail", { id: item?.id })
   }
 
+  function handleSearchMovie() {
+    if (!inputSearch == '') {
+      navigation.navigate("Search", { inputSearch })
+      setInputSearch('')
+    }
+  }
+
   if (loading) {
     return (
       <Container>
         <LoadingArea>
-          <ActivityIndicator size={75} color={`#FFF`} />
+          <ActivityIndicator size={75} color={base3} />
         </LoadingArea>
       </Container>
     )
@@ -94,8 +102,12 @@ export default function Home() {
       <Container>
         <Header title={`React Prime`} />
         <SeachContainer>
-          <Input placeholder='Nome do filme' />
-          <SearchButton>
+          <Input
+            placeholder='Nome do filme'
+            value={inputSearch}
+            onChangeText={(text) => setInputSearch(text)}
+          />
+          <SearchButton onPress={() => handleSearchMovie()}>
             <Feather name='search' size={30} color={base3} />
           </SearchButton>
         </SeachContainer>
