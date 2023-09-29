@@ -1,6 +1,6 @@
 ## App de Filmes
 
-Este é um aplicativo móvel que permite aos usuários explorar uma ampla variedade de filmes por gênero, visualizar informações detalhadas sobre os filmes selecionados e criar uma lista de filmes a serem assistidos. O aplicativo foi desenvolvido usando React Native e Expo, e faz uso de diversas tecnologias para oferecer uma experiência agradável aos usuários.
+Este é um projeto de APP que permite aos usuários explorar uma ampla variedade de filmes por gênero, visualizar informações detalhadas sobre os filmes selecionados e criar uma lista de filmes a serem assistidos. O aplicativo foi desenvolvido usando React Native e Expo, e faz uso de diversas tecnologias para oferecer uma experiência agradável aos usuários.
 
 ### Tecnologias Utilizadas
 
@@ -29,10 +29,11 @@ git clone https://github.com/MatheusSchade/app-filmes.git
 ```
 
 2. Navegue até o diretório do projeto:
-3. 
+
 ```bash
 cd app-filmes
 ```
+
 3. Instale as dependências usando o npm ou o yarn:
    
 ```bash
@@ -40,6 +41,7 @@ npm install
 # ou
 yarn install
 ```
+
 4. Inicie o aplicativo: 
 
 ```bash
